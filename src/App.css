@@ -152,9 +152,9 @@ input::-webkit-inner-spin-button {
 .btn:focus{
   border: 1px solid transparent !important;
 }
-tr>td{
+/* tr>td{
   text-transform:capitalize;
-}
+} */
 .clr{
   color: #cadcf0;
 }

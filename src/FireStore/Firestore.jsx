@@ -1,37 +1,48 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { db } from './firebase'
-import { getDocs, doc, collection } from 'firebase/firestore'
+import { getDocs, doc, collection, deleteDoc, getDoc } from 'firebase/firestore'
 import bin from '../Component/images/bin.png'
-import edit from '../Component/images/editp.png'
+import page  from '../Component/images/page.png'
+import edits from '../Component/images/editp.png'
 import { Stud } from '../App'
 
 const Firestore = () => {
 
-    const Global = useContext(Stud)
-    // console.log(Global);
-    const student = Global.student
-    const setStudent = Global.setStudent
-    // console.log(student);
+    const { student, setStudent } = useContext(Stud)
+    const { input, setInput } = useContext(Stud)
+    const { fetchUser } = useContext(Stud)
+    const { id, setId } = useContext(Stud)
+    const { edit, isEdit } = useContext(Stud)
+    const [noRecord, setNoRecord] = useState(false)
 
     useEffect(() => {
+        if (student.length === 0) {
+            setNoRecord(true)
+        } else {
+            setNoRecord(false)
+        }
+    }, [student])
+
+    const handleDelete = async (id) => {
+        // console.log(id);
+        await deleteDoc(doc(db, `users/${id}`))
         fetchUser()
-    }, [])
-
-    const fetchUser = async () => {
-        // const docRef = doc(db, 'users')
-        const querySnapshot = await getDocs(collection(db, 'users'))
-
-        var list = []
-        querySnapshot.forEach((doc) => {
-            // console.log(doc.data());
-            var data = doc.data()
-            list.push({ id: doc.id, ...data })
-        });
-        setStudent(list)
     }
 
-
+    const handleEdit = async (id) => {
+        const studRef = doc(db, `users/${id}`)
+        const docSnap = await getDoc(studRef)
+        if (docSnap.exists()) {
+            var data = docSnap.data()
+            setInput({ ...input, ...data })
+            isEdit(true)
+            setId(id)
+        }else{
+            alert("Document does not exist!")
+        }
+    }
+    
     return (
         <>
             <section className='my-5'>
@@ -56,23 +67,31 @@ const Firestore = () => {
                             </thead>
                             <tbody className='table-group-divider'>
                                 {
-                                    student && student.map((item, index) => {
-                                        return <tr key={index}>
-                                            <td>{index + 1}</td>
-                                            <td>{item.name}</td>
-                                            <td>{item.email}</td>
-                                            <td className=''>
-                                                <Link to={'/form'} className="btn btn-light">
-                                                    <img src={edit} alt="" width="24px" />
-                                                </Link></td>
-                                            <td className=''>
-                                                <button className="btn btn-light">
-                                                    <img src={bin} alt="" width="24px" />
-                                                </button></td>
-                                        </tr>
-                                    })
+                                    noRecord ? (
+                                        <>
+                                            <tr>
+                                                <td className='text-center fw-bold pe-0 py-3 fs-3 text-danger' colSpan={6}><img src={page} alt="" className='d-block m-auto' width="150px" />
+                                                    Empty Records</td>
+                                            </tr>
+                                        </>
+                                    ) : (
+                                        student.map((item, index) => {
+                                            return <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td>{item.name}</td>
+                                                <td>{item.email}</td>
+                                                <td className=''>
+                                                    <Link to={'/form'} className="btn btn-light" onClick={() => handleEdit(item.id)}>
+                                                        <img src={edits} alt="" width="24px" />
+                                                    </Link></td>
+                                                <td className=''>
+                                                    <button className="btn btn-light" onClick={() => handleDelete(item.id)}>
+                                                        <img src={bin} alt="" width="24px" />
+                                                    </button></td>
+                                            </tr>
+                                        })
+                                    )
                                 }
-
                             </tbody>
                         </table>
                     </div>

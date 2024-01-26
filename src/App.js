@@ -5,21 +5,48 @@ import Home from './Component/Home';
 import error from "./Component/images/error-404.png"
 import Firestore from './FireStore/Firestore';
 import Form from './FireStore/Form';
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from './FireStore/firebase';
 
 
 export const Stud = createContext()
 
 function App() {
 
-  const [input, setInput] = useState()
+  const init = {
+    name: "",
+    email: ""
+  }
+  useEffect(() => {
+    fetchUser()
+  }, [])
+
+  const [input, setInput] = useState(init)
   const [student, setStudent] = useState([])
+  const [edit, isEdit] = useState(false)
+  const [id, setId] = useState()
+  
+
+  const fetchUser = async () => {
+    // const docRef = doc(db, 'users')
+    const querySnapshot = await getDocs(collection(db, 'users'))
+
+    var list = []
+    querySnapshot.forEach((doc) => {
+      // console.log(doc.data());
+      var data = doc.data()
+      list.push({ id: doc.id, ...data, })
+    });
+    // list.push({ ...input })
+    setStudent(list)
+  }
 
   return (
     <>
       <BrowserRouter>
         <Header />
-        <Stud.Provider value={{student, setStudent}}>
+        <Stud.Provider value={{ student, setStudent, input, init, setInput, fetchUser , edit, isEdit, id, setId}}>
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/firestore' element={<Firestore />} />
