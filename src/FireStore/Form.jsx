@@ -45,11 +45,10 @@ const Form = () => {
                 await updateDoc(studRef, input)
                 isEdit(false)
                 navigate(-1)
-                // setInput(init)
             } else {
                 try {
                     const studRef = await addDoc(collection(db, "users"), input)
-                    // setInput(init)
+
                     navigate(-1)
                 } catch (e) {
                     console.error('error', e)
@@ -88,4 +87,4 @@ const Form = () => {
     )
 }
 
-export default Form
+export default Form;

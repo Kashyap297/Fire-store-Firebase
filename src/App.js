@@ -18,15 +18,11 @@ function App() {
     name: "",
     email: ""
   }
-  useEffect(() => {
-    fetchUser()
-  }, [])
 
   const [input, setInput] = useState(init)
   const [student, setStudent] = useState([])
   const [edit, isEdit] = useState(false)
   const [id, setId] = useState()
-  
 
   const fetchUser = async () => {
     // const docRef = doc(db, 'users')
@@ -42,11 +38,15 @@ function App() {
     setStudent(list)
   }
 
+  useEffect(() => {
+    fetchUser()
+  }, [])
+
   return (
     <>
       <BrowserRouter>
         <Header />
-        <Stud.Provider value={{ student, setStudent, input, init, setInput, fetchUser , edit, isEdit, id, setId}}>
+        <Stud.Provider value={{ student, setStudent, input, init, setInput, fetchUser, edit, isEdit, id, setId }}>
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/firestore' element={<Firestore />} />
